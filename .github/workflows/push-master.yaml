@@ -1,0 +1,28 @@
+name: update-charts
+on:
+  push:
+    branches:
+      - 'master'
+env:
+  REGISTRY: ghcr.io
+  REPO: "${{ github.repository }}"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: prepare utilities
+        run: |
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - name: registry login
+        run: |
+          helm registry login --username ${{github.actor}} --password ${{secrets.GITHUB_TOKEN}} "$REGISTRY"
+      - name: update all
+        run: |
+          cd charts
+          ./update.sh "$REGISTRY/$REPO"
