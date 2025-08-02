@@ -1,0 +1,22 @@
+apiVersion: v2
+name: __CHART__
+description: __CHART_DESCRIPTION__
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/__USER__/charts/tree/master/charts/__CHART__
+icon: https://raw.githubusercontent.com/__USER__/charts/refs/heads/master/charts/__CHART__/icon.png
+keywords: []
+maintainers:
+  - name: __USER__
+    url: https://github.com/__USER__/charts/charts/__CHART__
+sources:
+  - https://github.com/__USER__/__CHART__
+version: 0.1.0
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x

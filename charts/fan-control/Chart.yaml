@@ -1,0 +1,22 @@
+apiVersion: v2
+name: fan-control
+description: no
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/fan-control
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/fan-control/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607/charts/charts/fan-control
+sources:
+  - https://github.com/mixa3607/fan-control
+version: 0.2.0
+appVersion: 0.2.1
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
