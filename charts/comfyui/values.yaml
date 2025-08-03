@@ -74,9 +74,9 @@ extraDeploy: []
 ## @param image.debug Specify if debug logs should be enabled
 ##
 image:
-  registry: registry.arkprojects.space
-  repository: ghcr.io/mixa3607/charts/comfyui
-  tag: ""
+  registry: "ghcr.io/mixa3607/ml-gfx906"
+  repository: "comfyui/comfyui"
+  tag: "v0.3.48-rocm-6.4.2"
   digest: ""
   ## Specify a imagePullPolicy
   ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
@@ -186,8 +186,7 @@ tolerations: []
 ## @param containerPorts [object] Container ports
 ##
 containerPorts:
-  httppublic: 8080
-  httpprivate: 8090
+  http: 8080
 ## @param extraContainerPorts Optionally specify extra list of additional ports for Gitea container(s)
 ## e.g:
 ## extraContainerPorts:
@@ -238,7 +237,7 @@ nodeSelector: {}
 ## @param resourcesPreset Set %%MAIN_CONTAINER_NAME%% container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if keeweb.resources is set (keeweb.resources is recommended for production).
 ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
 ##
-resourcesPreset: ""
+resourcesPreset: "medium"
 ## @param resources Set %%MAIN_CONTAINER_NAME%% container requests and limits for different resources like CPU or memory (essential for production workloads)
 ## Example:
 ## resources:
@@ -249,13 +248,7 @@ resourcesPreset: ""
 ##     cpu: 3
 ##     memory: 1024Mi
 ##
-resources:
-  limits:
-    #  cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 80Mi
+resources: {}
 ## Configure Pods Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 ## @param podSecurityContext.enabled Enable Gitea pods' Security Context
@@ -269,7 +262,7 @@ podSecurityContext:
   fsGroupChangePolicy: Always
   sysctls: []
   supplementalGroups: []
-  fsGroup: 1654
+  fsGroup: 0
 ## Configure Container Security Context (only main container)
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## @param containerSecurityContext.enabled Enabled containers' Security Context
@@ -286,14 +279,14 @@ podSecurityContext:
 containerSecurityContext:
   enabled: true
   seLinuxOptions: {}
-  runAsUser: 1654
-  runAsGroup: 1654
-  runAsNonRoot: true
-  privileged: false
-  readOnlyRootFilesystem: true
-  allowPrivilegeEscalation: false
+  runAsUser: 0
+  runAsGroup: 0
+  runAsNonRoot: false
+  privileged: true
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: true
   capabilities:
-    drop: ["ALL"]
+    drop: []
   seccompProfile:
     type: "RuntimeDefault"
 ## Configure extra options for startup probe
@@ -313,8 +306,8 @@ containerSecurityContext:
 startupProbe:
   enabled: false
   httpGet:
-    path: /healthz
-    port: httpprivate
+    path: /system_stats
+    port: http
 ## Configure extra options for liveness probe
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param livenessProbe.enabled Enable livenessProbe
@@ -327,8 +320,8 @@ startupProbe:
 livenessProbe:
   enabled: true
   httpGet:
-    path: /healthz
-    port: httpprivate
+    path: /system_stats
+    port: http
 ## Configure extra options for readiness probe
 ## Gitea core exposes / to unauthenticated requests, making it a good
 ## default startup and readiness path. However, that may not always be the
@@ -346,8 +339,8 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /healthz
-    port: httpprivate
+    path: /system_stats
+    port: http
 ## @param customStartupProbe Override default startup probe
 ##
 customStartupProbe: {}
@@ -391,12 +384,10 @@ service:
   ## @param service.type Kubernetes Service type
   ##
   type: ClusterIP
-  ## @param service.ports.httppublic Service public port
-  ## @param service.ports.httpprivate Service private port
+  ## @param service.ports.http Service public port
   ##
   ports:
-    httppublic: 8080
-    httpprivate: 8090
+    http: 8080
   ## @param service.loadBalancerSourceRanges Restricts access for LoadBalancer (only with `service.type: LoadBalancer`)
   ## e.g:
   ## loadBalancerSourceRanges:
@@ -409,12 +400,10 @@ service:
   loadBalancerIP: ""
   ## @param service.nodePorts [object] Kubernetes node port
   ## nodePorts:
-  ##   httppublic: <to set explicitly, choose port between 30000-32767>
-  ##   httpprivate: <to set explicitly, choose port between 30000-32767>
+  ##   http: <to set explicitly, choose port between 30000-32767>
   ##
   nodePorts:
-    httppublic: ""
-    httpprivate: ""
+    http: ""
   ## @param service.externalTrafficPolicy Enable client source IP preservation
   ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
   ##
@@ -593,7 +582,7 @@ persistence:
     - ReadWriteOnce
   ## @param persistence.size Size of data volume
   ##
-  size: 8Gi
+  size: 16Gi
   ## @param persistence.dataSource Custom PVC data source
   ##
   dataSource: {}
@@ -610,6 +599,3 @@ persistence:
   selector: {}
 
 #####################################
-
-app-configuration:
-  appsettings.Production.json: ""

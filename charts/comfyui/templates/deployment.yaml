@@ -71,8 +71,45 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- end }}
 
-      {{- if .Values.initContainers }}
       initContainers:
+        - name: init-data
+          image: {{ template "comfyui.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+          command: [ '/bin/bash', '-c' ]
+          args:
+            - |
+              cp -r ./models ./custom_nodes ./input ./output '{{ .Values.persistence.mountPath }}'
+              mkdir -p '{{ .Values.persistence.mountPath }}'/user
+          env:
+            {{- if .Values.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          resources: {{- include "common.resources.preset" (dict "type" "nano") | nindent 12 }}
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+              {{- if .Values.persistence.subPath }}
+              subPath: {{ .Values.persistence.subPath }}
+              {{- end }}
+          {{- if .Values.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+      {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
       {{- end }}
 
@@ -88,11 +125,18 @@ spec:
           command: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.command "context" $) | nindent 12 }}
           {{- else if .Values.command }}
           command: {{- include "common.tplvalues.render" (dict "value" .Values.command "context" $) | nindent 12 }}
+          {{- else }}
+          command: [ "/usr/bin/python3", "main.py" ]
           {{- end }}
           {{- if .Values.diagnosticMode.enabled }}
           args: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.args "context" $) | nindent 12 }}
           {{- else if .Values.args }}
           args: {{- include "common.tplvalues.render" (dict "value" .Values.args "context" $) | nindent 12 }}
+          {{- else }}
+          args:
+            - "--listen=0.0.0.0"
+            - "--port=8080"
+            - "--base-directory={{ .Values.persistence.mountPath }}"
           {{- end }}
 
           env:
@@ -116,10 +160,8 @@ spec:
           {{- end }}
 
           ports:
-            - name: httppublic
-              containerPort: {{ .Values.containerPorts.httppublic }}
-            - name: httpprivate
-              containerPort: {{ .Values.containerPorts.httpprivate }}
+            - name: http
+              containerPort: {{ .Values.containerPorts.http }}
             {{- if .Values.extraContainerPorts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraContainerPorts "context" $) | nindent 12 }}
             {{- end }}
@@ -147,12 +189,6 @@ spec:
           {{- end }}
 
           volumeMounts:
-            {{- range $k, $v := index .Values "app-configuration" }}
-            - name: appsettings
-              readOnly: true
-              mountPath: "/homes/app/{{ $k }}"
-              subPath: {{ $k }}
-            {{- end }}
             - name: empty-dir
               mountPath: /tmp
               subPath: tmp-dir
@@ -178,9 +214,6 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
-        - name: appsettings
-          secret:
-            secretName: {{ template "common.names.fullname" . }}-app-configuration
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
