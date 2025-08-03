@@ -1,0 +1,23 @@
+apiVersion: v2
+name: buildkit
+description: concurrent, cache-efficient, and Dockerfile-agnostic builder toolkit
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/buildkit
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/buildkit/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/moby/buildkit
+  - https://github.com/andrcuns/charts
+version: 0.1.0
+appVersion: v0.23.2
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
