@@ -1,0 +1,23 @@
+apiVersion: v2
+name: comfyui
+description: The most powerful and modular diffusion model GUI, api and backend with a graph/nodes interface.
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/comfyui
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/comfyui/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/mixa3607/comfyui
+  - https://github.com/comfyanonymous/ComfyUI
+version: 0.1.0
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x

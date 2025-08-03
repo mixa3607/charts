@@ -1,6 +1,6 @@
 apiVersion: v2
 name: extra
-description: Helm chart only with extra deployments
+description: Helm chart with only extra deployments
 type: application
 annotations:
   licenses: MIT License
