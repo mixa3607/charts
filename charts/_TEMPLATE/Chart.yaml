@@ -9,7 +9,7 @@ icon: https://raw.githubusercontent.com/__USER__/charts/refs/heads/master/charts
 keywords: []
 maintainers:
   - name: __USER__
-    url: https://github.com/__USER__/charts/charts/__CHART__
+    url: https://github.com/__USER__
 sources:
   - https://github.com/__USER__/__CHART__
 version: 0.1.0

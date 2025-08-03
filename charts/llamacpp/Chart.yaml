@@ -11,9 +11,9 @@ maintainers:
   - name: mixa3607
     url: https://github.com/mixa3607
 sources:
-  - https://github.com/mixa3607/llama.cpp-gfx906
+  - https://github.com/mixa3607/ml-gfx906
   - https://github.com/ggml-org/llama.cpp
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0
 dependencies:
   - name: common

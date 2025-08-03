@@ -5,12 +5,12 @@ type: application
 annotations:
   licenses: MIT License
 home: https://keeweb.info
-icon: https://avatars.githubusercontent.com/u/18244763
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/keeweb/icon.png
 keywords: []
 maintainers:
   - name: mixa3607
-    url: https://github.com/mixa3607/charts
+    url: https://github.com/mixa3607
 sources:
   - https://github.com/keeweb/keeweb
-version: 0.1.0
+version: 0.1.1
 appVersion: "1.18.7"

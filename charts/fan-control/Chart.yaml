@@ -1,6 +1,6 @@
 apiVersion: v2
 name: fan-control
-description: no
+description: Lenovo RD450x fan control
 type: application
 annotations:
   licenses: MIT License
@@ -9,11 +9,11 @@ icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts
 keywords: []
 maintainers:
   - name: mixa3607
-    url: https://github.com/mixa3607/charts/charts/fan-control
+    url: https://github.com/mixa3607
 sources:
   - https://github.com/mixa3607/fan-control
 version: 0.2.0
-appVersion: 0.2.1
+appVersion: 0.2.2
 dependencies:
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
