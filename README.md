@@ -1,6 +1,5 @@
 # Helm Library for Kubernetes
-![ci](https://img.shields.io/github/actions/workflow/status/mixa3607/charts/push-master.yml?branch=master&style=flat-square)
-![GitHub Release](https://img.shields.io/github/v/release/mixa3607/charts?display_name=tag&style=flat-square)
+![ci](https://img.shields.io/github/actions/workflow/status/mixa3607/charts/push-master.yaml?branch=master&style=flat-square)
 ![license](https://img.shields.io/github/license/mixa3607/charts?style=flat-square)
 
 ## TL;DR
