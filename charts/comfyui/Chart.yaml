@@ -13,7 +13,7 @@ maintainers:
 sources:
   - https://github.com/mixa3607/comfyui
   - https://github.com/comfyanonymous/ComfyUI
-version: 0.2.0
+version: 0.2.1
 appVersion: 0.0.0
 dependencies:
   - name: common

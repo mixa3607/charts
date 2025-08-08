@@ -13,7 +13,7 @@ maintainers:
 sources:
   - https://github.com/moby/buildkit
   - https://github.com/andrcuns/charts
-version: 0.1.1
+version: 0.1.2
 appVersion: v0.23.2
 dependencies:
   - name: common

@@ -570,6 +570,9 @@ persistence:
   ## @param persistence.enabled Enable persistence using Persistent Volume Claims
   ##
   enabled: false
+  ## @param persistence.preserve Preserve PVC on helm uninstall
+  ##
+  preserve: true
   ## @param persistence.mountPath Path to mount the volume at.
   ##
   mountPath: /data
