@@ -1,19 +1,18 @@
 apiVersion: v2
-name: llamacpp
-description: llama.cpp helm chart
+name: nginx-ip-checker
+description: Service for check ip's
 type: application
 annotations:
   licenses: MIT License
-home: https://github.com/mixa3607/charts/tree/master/charts/llamacpp
-icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/llamacpp/icon.png
+home: https://github.com/mixa3607/charts/tree/master/charts/nginx-ip-checker
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/nginx-ip-checker/icon.png
 keywords: []
 maintainers:
   - name: mixa3607
     url: https://github.com/mixa3607
 sources:
-  - https://github.com/mixa3607/ml-gfx906
-  - https://github.com/ggml-org/llama.cpp
-version: 0.1.3
+  - https://github.com/mixa3607/nginx-ip-checker
+version: 0.1.0
 appVersion: 0.1.0
 dependencies:
   - name: common

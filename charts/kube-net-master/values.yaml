@@ -40,19 +40,19 @@ global:
 ## @param kubeVersion Force target Kubernetes version (using Helm capabilities if not set)
 ##
 kubeVersion: ""
-## @param nameOverride String to partially override fullname template (will maintain the release name)
+## @param nameOverride String to partially override gitea.fullname template (will maintain the release name)
 ##
 nameOverride: ""
-## @param fullnameOverride String to fully override fullname template
+## @param fullnameOverride String to fully override gitea.fullname template
 ##
 fullnameOverride: ""
 ## @param namespaceOverride String to fully override common.names.namespace
 ##
 namespaceOverride: ""
-## @param commonAnnotations Common annotations to add to all resources (sub-charts are not considered). Evaluated as a template
+## @param commonAnnotations Common annotations to add to all Gitea resources (sub-charts are not considered). Evaluated as a template
 ##
 commonAnnotations: {}
-## @param commonLabels Common labels to add to all resources (sub-charts are not considered). Evaluated as a template
+## @param commonLabels Common labels to add to all Gitea resources (sub-charts are not considered). Evaluated as a template
 ##
 commonLabels: {}
 ## @param extraDeploy Array of extra objects to deploy with the release (evaluated as a template).
@@ -60,21 +60,22 @@ commonLabels: {}
 extraDeploy: []
 
 ###################################################
-## @section __CHART__ parameters
+## @section kube-net-master parameters
 ##
 
-## image version
-## @param image.registry [default: REGISTRY_NAME] image registry
-## @param image.repository [default: REPOSITORY_NAME/__CHART__] __CHART__ Image name
+## Bitnami Gitea image version
+## ref: https://hub.docker.com/r/bitnami/gitea/tags/
+## @param image.registry [default: REGISTRY_NAME] Gitea image registry
+## @param image.repository [default: REPOSITORY_NAME/gitea] Gitea Image name
 ## @skip image.tag Image tag
-## @param image.digest __CHART__ image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
-## @param image.pullPolicy __CHART__ image pull policy
+## @param image.digest Gitea image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+## @param image.pullPolicy Gitea image pull policy
 ## @param image.pullSecrets Specify docker-registry secret names as an array
 ## @param image.debug Specify if debug logs should be enabled
 ##
 image:
-  registry: docker.io
-  repository: __IMAGE_REPO__
+  registry: registry.arkprojects.space
+  repository: apps/ark-kube-net-master
   tag: ""
   digest: ""
   ## Specify a imagePullPolicy
@@ -108,7 +109,7 @@ args: []
 ##
 updateStrategy:
   type: Recreate
-## @param priorityClassName __CHART__ pods' priorityClassName
+## @param priorityClassName Gitea pods' priorityClassName
 ##
 priorityClassName: ""
 ## @param schedulerName Name of the k8s scheduler (other than default)
@@ -187,7 +188,7 @@ tolerations: []
 containerPorts:
   httppublic: 8080
   httpprivate: 8090
-## @param extraContainerPorts Optionally specify extra list of additional ports for __CHART__ container(s)
+## @param extraContainerPorts Optionally specify extra list of additional ports for Gitea container(s)
 ## e.g:
 ## extraContainerPorts:
 ##   - name: myservice
@@ -257,11 +258,11 @@ resources:
     memory: 80Mi
 ## Configure Pods Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-## @param podSecurityContext.enabled Enable __CHART__ pods' Security Context
+## @param podSecurityContext.enabled Enable Gitea pods' Security Context
 ## @param podSecurityContext.fsGroupChangePolicy Set filesystem group change policy
 ## @param podSecurityContext.sysctls Set kernel settings using the sysctl interface
 ## @param podSecurityContext.supplementalGroups Set filesystem extra groups
-## @param podSecurityContext.fsGroup __CHART__ pods' group ID
+## @param podSecurityContext.fsGroup Gitea pods' group ID
 ##
 podSecurityContext:
   enabled: true
@@ -296,10 +297,10 @@ containerSecurityContext:
   seccompProfile:
     type: "RuntimeDefault"
 ## Configure extra options for startup probe
-## __CHART__ core exposes / to unauthenticated requests, making it a good
+## Gitea core exposes / to unauthenticated requests, making it a good
 ## default startup and readiness path. However, that may not always be the
 ## case. For example, if the image value is overridden to an image containing a
-## module that alters that route, or an image that does not auto-install __CHART__.
+## module that alters that route, or an image that does not auto-install Gitea.
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param startupProbe.enabled Enable startupProbe
 ## @param startupProbe.path Request path for startupProbe
@@ -329,10 +330,10 @@ livenessProbe:
     path: /healthz
     port: httpprivate
 ## Configure extra options for readiness probe
-## __CHART__ core exposes / to unauthenticated requests, making it a good
+## Gitea core exposes / to unauthenticated requests, making it a good
 ## default startup and readiness path. However, that may not always be the
 ## case. For example, if the image value is overridden to an image containing a
-## module that alters that route, or an image that does not auto-install __CHART__.
+## module that alters that route, or an image that does not auto-install Gitea.
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param readinessProbe.enabled Enable readinessProbe
 ## @param readinessProbe.path Request path for readinessProbe
@@ -402,7 +403,7 @@ service:
   ##   - 0.0.0.0/0
   ##
   loadBalancerSourceRanges: []
-  ## @param service.loadBalancerIP loadBalancerIP for the __CHART__ Service (optional, cloud specific)
+  ## @param service.loadBalancerIP loadBalancerIP for the Gitea Service (optional, cloud specific)
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
   ##
   loadBalancerIP: ""
@@ -418,7 +419,7 @@ service:
   ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
   ##
   externalTrafficPolicy: Cluster
-  ## @param service.clusterIP __CHART__ service Cluster IP
+  ## @param service.clusterIP Gitea service Cluster IP
   ## e.g.:
   ## clusterIP: None
   ##
@@ -426,7 +427,7 @@ service:
   ## @param service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
   ##
   extraPorts: []
-  ## @param service.annotations Additional custom annotations for __CHART__ service
+  ## @param service.annotations Additional custom annotations for Gitea service
   ##
   annotations: {}
   ## @param service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
@@ -443,7 +444,7 @@ service:
 
 #####################################
 ## Configure the ingress resource that allows you to access the
-## __CHART__ installation. Set up the URL
+## Gitea installation. Set up the URL
 ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ##
 ingress:
@@ -463,8 +464,8 @@ ingress:
   ingressClassName: ""
   ## @param ingress.hostname Default host for the ingress resource
   ##
-  hostname: "__CHART__.local"
-  ## @param ingress.path The Path to __CHART__. You may need to set this to '/*' in order to use this
+  hostname: "kube-net-master.local"
+  ## @param ingress.path The Path to Gitea. You may need to set this to '/*' in order to use this
   ## with ALB ingress controllers.
   ##
   path: /
@@ -491,7 +492,7 @@ ingress:
   ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
   ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
   ## extraHosts:
-  ## - name: __CHART__.local
+  ## - name: gitea.local
   ##   path: /
   ##
   extraHosts: []
@@ -508,8 +509,8 @@ ingress:
   ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
   ## extraTls:
   ## - hosts:
-  ##     - __CHART__.local
-  ##   secretName: __CHART__.local-tls
+  ##     - gitea.local
+  ##   secretName: gitea.local-tls
   ##
   extraTls: []
   ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
@@ -522,7 +523,7 @@ ingress:
   ## It is also possible to create and manage the certificates outside of this helm chart
   ## Please see README.md for more information
   ## Example:
-  ## - name: __CHART__.local-tls
+  ## - name: gitea.local-tls
   ##   key:
   ##   certificate:
   ##
@@ -543,11 +544,11 @@ ingress:
   extraRules: []
 
 #####################################
-## Service account for __CHART__ to use.
+## Service account for Gitea to use.
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
 serviceAccount:
-  ## @param serviceAccount.create Enable creation of ServiceAccount for __CHART__ pod
+  ## @param serviceAccount.create Enable creation of ServiceAccount for Gitea pod
   ##
   create: false
   ## @param serviceAccount.name The name of the ServiceAccount to use.

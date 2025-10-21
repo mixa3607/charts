@@ -1,0 +1,22 @@
+apiVersion: v2
+name: dv-ai-completion
+description: 2ch.hk ai completion service
+type: application
+annotations:
+  licenses: MIT License
+home: https://gitea.arkprojects.space/ArkProjects/dvach-services
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/dv-ai-completion/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://gitea.arkprojects.space/ArkProjects/dvach-services/src/branch/master/src/ArkProjects.Dv.AiAssistantService
+version: 0.1.0
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x

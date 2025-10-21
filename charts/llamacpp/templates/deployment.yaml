@@ -111,6 +111,10 @@ spec:
               value: "{{ .Values.containerPorts.http }}"
             - name: LLAMA_ARG_HOST
               value: "0.0.0.0"
+            {{- if .Values.chatTemplate }}
+            - name: LLAMA_ARG_CHAT_TEMPLATE
+              value: {{- .Values.chatTemplate | toYaml | indent 14 }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
