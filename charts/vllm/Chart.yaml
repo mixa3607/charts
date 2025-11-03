@@ -1,0 +1,24 @@
+apiVersion: v2
+name: vllm
+description: A high-throughput and memory-efficient inference and serving engine for LLMs
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/vllm
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/vllm/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/mixa3607/ML-gfx906/vllm
+  - https://github.com/nlzy/vllm-gfx906
+  - https://github.com/vllm-project/vllm
+version: 0.1.0
+appVersion: 0.11.0-rocm-6.3.3
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
