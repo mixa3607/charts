@@ -13,7 +13,7 @@ maintainers:
 sources:
   - https://github.com/mixa3607/spoolman
   - https://github.com/Donkie/Spoolman
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.23.1
 dependencies:
   - name: common

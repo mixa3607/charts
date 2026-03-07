@@ -100,9 +100,9 @@ spec:
               value: "{{ .Values.containerSecurityContext.runAsUser }}"
             - name: PGID
               value: "{{ .Values.containerSecurityContext.runAsGroup }}"
-            - name: SPOOLMAN_PORT
+            - name: UVICORN_PORT
               value: "{{ .Values.containerPorts.httppublic }}"
-            - name: SPOOLMAN_HOST
+            - name: UVICORN_HOST
               value: "0.0.0.0"
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
