@@ -1,0 +1,23 @@
+apiVersion: v2
+name: spoolman
+description: Spoolman is a self-hosted web service designed to help you efficiently manage your 3D printer filament spools and monitor their usage.
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/spoolman
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/spoolman/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/mixa3607/spoolman
+  - https://github.com/Donkie/Spoolman
+version: 0.1.0
+appVersion: 0.23.1
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
