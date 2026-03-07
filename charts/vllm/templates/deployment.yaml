@@ -32,6 +32,7 @@ spec:
         app.kubernetes.io/component: vllm
 
     spec:
+      enableServiceLinks: false
       {{- include "vllm.imagePullSecrets" . | nindent 6 }}
 
       serviceAccountName: {{ template "vllm.serviceAccountName" . }}
@@ -98,8 +99,6 @@ spec:
           env:
             - name: "IMAGE_NAME"
               value: "{{ template "vllm.image" . }}"
-            - name: "VLLM_PORT"
-              value: "{{ .Values.containerPorts.httppublic }}"
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
