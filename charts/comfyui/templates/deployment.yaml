@@ -83,6 +83,7 @@ spec:
             - |
               cp -r ./models ./custom_nodes ./input ./output '{{ .Values.persistence.mountPath }}'
               mkdir -p '{{ .Values.persistence.mountPath }}'/user
+              mkdir -p '{{ .Values.persistence.mountPath }}'/database
           env:
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
@@ -134,9 +135,13 @@ spec:
           args: {{- include "common.tplvalues.render" (dict "value" .Values.args "context" $) | nindent 12 }}
           {{- else }}
           args:
+            {{- if .Values.extraArgs }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraArgs "context" $) | nindent 12 }}
+            {{- end }}
             - "--listen=0.0.0.0"
-            - "--port=8080"
+            - "--port={{ .Values.containerPorts.http }}"
             - "--base-directory={{ .Values.persistence.mountPath }}"
+            - "--database-url=sqlite:///{{ .Values.persistence.mountPath }}/database/comfyui.db"
           {{- end }}
 
           env:
