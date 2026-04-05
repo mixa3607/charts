@@ -164,6 +164,12 @@ spec:
           {{- end }}
 
           volumeMounts:
+            {{- range $k, $v := index .Values "app-configuration" }}
+            - name: appsettings
+              readOnly: true
+              mountPath: "/app/{{ $k }}"
+              subPath: {{ $k }}
+            {{- end }}
             - name: empty-dir
               mountPath: /tmp
               subPath: tmp-dir
@@ -189,6 +195,12 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end}}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+        - name: appsettings
+          secret:
+            secretName: {{ template "common.names.fullname" . }}-app-configuration
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
