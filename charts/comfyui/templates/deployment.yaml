@@ -35,7 +35,7 @@ spec:
       {{- include "comfyui.imagePullSecrets" . | nindent 6 }}
 
       serviceAccountName: {{ template "comfyui.serviceAccountName" . }}
-
+      runtimeClassName: {{ .Values.runtimeClassName }}
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.affinity "context" $) | nindent 8 }}
       {{- else }}
@@ -138,6 +138,7 @@ spec:
             {{- if .Values.extraArgs }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraArgs "context" $) | nindent 12 }}
             {{- end }}
+            - "--enable-manager"
             - "--listen=0.0.0.0"
             - "--port={{ .Values.containerPorts.http }}"
             - "--base-directory={{ .Values.persistence.mountPath }}"
