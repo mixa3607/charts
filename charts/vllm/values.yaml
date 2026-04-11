@@ -578,7 +578,7 @@ persistence:
   preserve: false
   ## @param persistence.mountPath Path to mount the volume at.
   ##
-  mountPath: /root/.cache/huggingface
+  mountPath: /root/.cache
   ## @param persistence.subPath The subdirectory of the volume to mount to, useful in dev environments and one PV for multiple services
   ##
   subPath: ""
