@@ -187,6 +187,7 @@ tolerations: []
 ##
 containerPorts:
   httppublic: 8080
+  httpprivate: 8090
 ## @param extraContainerPorts Optionally specify extra list of additional ports for Gitea container(s)
 ## e.g:
 ## extraContainerPorts:

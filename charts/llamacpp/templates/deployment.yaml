@@ -25,9 +25,8 @@ spec:
 
   template:
     metadata:
-      {{- if .Values.podAnnotations }}
       annotations: {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
-      {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
         app.kubernetes.io/component: llamacpp
 
@@ -35,6 +34,7 @@ spec:
       {{- include "llamacpp.imagePullSecrets" . | nindent 6 }}
 
       serviceAccountName: {{ template "llamacpp.serviceAccountName" . }}
+      runtimeClassName: {{ .Values.runtimeClassName }}
 
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.affinity "context" $) | nindent 8 }}
@@ -54,6 +54,7 @@ spec:
       {{- end }}
 
       priorityClassName: {{ .Values.priorityClassName | quote }}
+      hostIPC: {{ .Values.hostIPC }}
 
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
@@ -195,12 +196,9 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end}}
-        {{- if .Values.extraVolumes }}
-        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
-        {{- end }}
         - name: appsettings
-          secret:
-            secretName: {{ template "common.names.fullname" . }}-app-configuration
+          configMap:
+            name: {{ template "common.names.fullname" . }}-app-configuration
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}

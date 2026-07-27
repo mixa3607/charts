@@ -81,10 +81,11 @@ spec:
           command: [ '/bin/bash', '-c' ]
           args:
             - |
-              cp -r ./models ./custom_nodes ./input ./output '{{ .Values.persistence.mountPath }}'
-              mkdir -p '{{ .Values.persistence.mountPath }}'/user
-              mkdir -p '{{ .Values.persistence.mountPath }}'/database
+              export BOOTSTRAP_ONLY=1
+              source entrypoint.sh
           env:
+            - name: PERSISTENCE_PATH
+              value: {{ .Values.persistence.mountPath }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
@@ -127,7 +128,7 @@ spec:
           {{- else if .Values.command }}
           command: {{- include "common.tplvalues.render" (dict "value" .Values.command "context" $) | nindent 12 }}
           {{- else }}
-          command: [ "/usr/bin/python3", "main.py" ]
+          command: [ "/comfyui/entrypoint.sh" ]
           {{- end }}
           {{- if .Values.diagnosticMode.enabled }}
           args: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.args "context" $) | nindent 12 }}
@@ -138,14 +139,12 @@ spec:
             {{- if .Values.extraArgs }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraArgs "context" $) | nindent 12 }}
             {{- end }}
-            - "--enable-manager"
             - "--listen=0.0.0.0"
             - "--port={{ .Values.containerPorts.http }}"
-            - "--base-directory={{ .Values.persistence.mountPath }}"
-            - "--database-url=sqlite:///{{ .Values.persistence.mountPath }}/database/comfyui.db"
           {{- end }}
-
           env:
+            - name: PERSISTENCE_PATH
+              value: {{ .Values.persistence.mountPath }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
@@ -203,6 +202,13 @@ spec:
               {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
               {{- end }}
+            {{ $persistencePath := .Values.persistence.mountPath }}
+            {{- range $k, $v := index .Values "app-configuration" }}
+            - name: appsettings
+              readOnly: true
+              mountPath: "{{ $persistencePath }}/user/{{ $k }}"
+              subPath: {{ $k }}
+            {{- end }}
           {{- if .Values.extraVolumeMounts }}
           {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
           {{- end }}
@@ -220,6 +226,9 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
+        - name: appsettings
+          secret:
+            secretName: {{ template "common.names.fullname" . }}-app-configuration
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
