@@ -1,0 +1,31 @@
+apiVersion: v2
+name: suwayomi-server
+description: Suwayomi-Server is a free and open source manga reader server that runs extensions built for Mihon (Tachiyomi).
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/suwayomi-server
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/suwayomi-server/icon.png
+keywords:
+  - suwayomi
+  - tachiyomi
+  - manga
+  - reader
+  - server
+  - manga-reader
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/Suwayomi/Suwayomi-Server
+  - https://github.com/mixa3607/charts
+version: 0.1.0
+## Suwayomi Docker images use tags like `stable`, `latest`, `preview` (not version numbers).
+## App version is set to `stable` to match the Docker tag used by default.
+appVersion: "stable"
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
