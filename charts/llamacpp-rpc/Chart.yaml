@@ -1,0 +1,23 @@
+apiVersion: v2
+name: llamacpp-rpc
+description: llama.cpp RPC server helm chart
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/llamacpp-rpc
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/llamacpp-rpc/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/mixa3607/ml-gfx906
+  - https://github.com/ggml-org/llama.cpp
+version: 0.1.7
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
