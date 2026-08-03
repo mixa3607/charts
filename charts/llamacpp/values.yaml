@@ -114,7 +114,16 @@ updateStrategy:
 ##
 priorityClassName: ""
 
+## @param hostNetwork Use host network for the pod
+##
+hostNetwork: false
+## @param hostIPC Use host IPC for the pod
+##
 hostIPC: false
+
+## @param runtimeClassName Runtime class name for the pod
+##
+runtimeClassName: ""
 
 ## @param schedulerName Name of the k8s scheduler (other than default)
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/

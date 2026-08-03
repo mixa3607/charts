@@ -37,7 +37,6 @@ spec:
       {{- include "llamacpp.imagePullSecrets" . | nindent 6 }}
 
       serviceAccountName: {{ template "llamacpp.serviceAccountName" . }}
-      runtimeClassName: {{ .Values.runtimeClassName }}
 
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.affinity "context" $) | nindent 8 }}
@@ -57,7 +56,11 @@ spec:
       {{- end }}
 
       priorityClassName: {{ .Values.priorityClassName | quote }}
+      hostNetwork: {{ .Values.hostNetwork }}
       hostIPC: {{ .Values.hostIPC }}
+      {{- if .Values.runtimeClassName }}
+      runtimeClassName: {{ .Values.runtimeClassName }}
+      {{- end }}
 
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
