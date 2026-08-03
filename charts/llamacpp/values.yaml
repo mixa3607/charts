@@ -241,7 +241,7 @@ nodeSelector: {}
 ## @param resourcesPreset Set %%MAIN_CONTAINER_NAME%% container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if keeweb.resources is set (keeweb.resources is recommended for production).
 ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
 ##
-resourcesPreset: ""
+resourcesPreset: "none"
 ## @param resources Set %%MAIN_CONTAINER_NAME%% container requests and limits for different resources like CPU or memory (essential for production workloads)
 ## Example:
 ## resources:
@@ -610,12 +610,44 @@ persistence:
   selector: {}
 
 #####################################
-
-## Enable layers override
-## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
-## modelTensorsOverride:
-## - name: CPU
-##   tensors:
-##     - '^blk\.\d+\.ffn_gate_exps'
+## Models presets configuration
 ##
-modelTensorsOverride: []
+## Configures llama.cpp server models via presets INI.
+## The `defaults` section is merged into each model preset and can be
+## partially overwritten per model. No `[*]` section appears in the output.
+##
+## List-type parameters use YAML arrays (each element renders as a separate line).
+## Template expressions like `{{ mul 16 1024 }}` are supported on string values.
+##
+## NOTE: YAML interprets `on`, `off`, `yes`, `no` as booleans.
+## Quote string values like `log-colors: "on"` to prevent unintended conversion.
+##
+models:
+  ## @param models.filename [default: models.ini] Generated INI filename
+  # filename: models.ini
+  ## @param models.defaults Default values applied to all model presets
+  ##   Merged into each model; per-model settings take precedence.
+  # defaults:
+  #   log-colors: "on"
+  #   metrics: true
+  #   props: true
+  #   slots: true
+  #   jinja: true
+  #   context-shift: false
+  #   cache-idle-slots: true
+  #   cache-ram: 8192
+  #   batch-size: 2048
+  #   ubatch-size: 2048
+  #   offline: true
+  ## @param models.presets Map of model presets (key = model name)
+  ##   Each entry defines a model section in the generated INI.
+  ##   Set enabled: false to skip a preset.
+  # presets: {}
+  #   model-name:
+  #     enabled: true
+  #     model: hf:repo/file:quant
+  #     ctx-size: 4096
+  #     flash-attn: true
+  #     threads: 64
+  #     device: none
+  #     cache-ram: "{{ mul 16 1024 }}"

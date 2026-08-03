@@ -25,7 +25,10 @@ spec:
 
   template:
     metadata:
-      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
         checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
         app.kubernetes.io/component: llamacpp
@@ -97,14 +100,6 @@ spec:
             {{- if .Values.args }}
             {{- include "common.tplvalues.render" (dict "value" .Values.args "context" $) | nindent 12 }}
             {{- end }}
-            {{- if .Values.modelTensorsOverride }}
-            {{- range $v := .Values.modelTensorsOverride }}
-            {{- if $v.tensors }}
-            - '--override-tensor'
-            - '({{ join "|" $v.tensors }})={{ $v.name }}'
-            {{- end }}
-            {{- end }}
-            {{- end }}
           {{- end }}
 
           env:
@@ -115,6 +110,10 @@ spec:
             {{- if .Values.chatTemplate }}
             - name: LLAMA_ARG_CHAT_TEMPLATE
               value: {{- .Values.chatTemplate | toYaml | indent 14 }}
+            {{- end }}
+            {{- if and .Values.models .Values.models.presets }}
+            - name: LLAMA_ARG_MODELS_PRESET
+              value: {{ .Values.models.filename | default "models.ini" | quote }}
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
@@ -170,6 +169,12 @@ spec:
               readOnly: true
               mountPath: "/app/{{ $k }}"
               subPath: {{ $k }}
+            {{- end }}
+            {{- if and .Values.models .Values.models.presets }}
+            - name: appsettings
+              readOnly: true
+              mountPath: /app/{{ .Values.models.filename | default "models.ini" }}
+              subPath: {{ .Values.models.filename | default "models.ini" }}
             {{- end }}
             - name: empty-dir
               mountPath: /tmp
