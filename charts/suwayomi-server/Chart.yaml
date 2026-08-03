@@ -19,7 +19,7 @@ maintainers:
 sources:
   - https://github.com/Suwayomi/Suwayomi-Server
   - https://github.com/mixa3607/charts
-version: 0.1.0
+version: 0.1.1
 ## Suwayomi Docker images use tags like `stable`, `latest`, `preview` (not version numbers).
 ## App version is set to `stable` to match the Docker tag used by default.
 appVersion: "stable"

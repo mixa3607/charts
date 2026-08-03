@@ -308,8 +308,6 @@ containerSecurityContext:
 ##
 startupProbe:
   enabled: false
-  periodSeconds: 30
-  failureThreshold: 10
   httpGet:
     path: /api/ping
     port: httppublic
@@ -324,8 +322,6 @@ startupProbe:
 ##
 livenessProbe:
   enabled: true
-  periodSeconds: 30
-  failureThreshold: 10
   httpGet:
     path: /api/ping
     port: httppublic
@@ -345,8 +341,6 @@ readinessProbe:
   httpGet:
     path: /api/ping
     port: httppublic
-    periodSeconds: 30
-    failureThreshold: 10
 ## @param customStartupProbe Override default startup probe
 ##
 customStartupProbe: {}
