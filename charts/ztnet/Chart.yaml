@@ -1,0 +1,22 @@
+apiVersion: v2
+name: ztnet
+description: ZTNET - ZeroTier Web UI for Private Controllers with Multiuser and Organization Support.
+type: application
+annotations:
+  licenses: MIT License
+home: https://github.com/mixa3607/charts/tree/master/charts/ztnet
+icon: https://raw.githubusercontent.com/mixa3607/charts/refs/heads/master/charts/ztnet/icon.png
+keywords: []
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607/charts/charts/ztnet
+sources:
+  - https://github.com/sinamics/ztnet
+version: 0.1.0
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x

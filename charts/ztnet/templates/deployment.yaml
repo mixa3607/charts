@@ -1,0 +1,258 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app.kubernetes.io/component: ztnet
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" .Values.commonAnnotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.hpa.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  {{- if .Values.updateStrategy }}
+  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+
+  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels) "context" .) }}
+
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
+      app.kubernetes.io/component: ztnet
+
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+        app.kubernetes.io/component: ztnet
+
+    spec:
+      {{- include "ztnet.imagePullSecrets" . | nindent 6 }}
+
+      hostNetwork: {{ .Values.hostNetwork }}
+
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAffinityPreset "customLabels" $podLabels "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset "customLabels" $podLabels "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.nodeAffinityPreset.type "key" .Values.nodeAffinityPreset.key "values" .Values.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+
+      priorityClassName: {{ .Values.priorityClassName | quote }}
+
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName }}
+      {{- end }}
+
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
+
+      {{- if .Values.initContainers }}
+      initContainers:
+        {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
+      {{- end }}
+
+      containers:
+        - name: ztnet
+          image: {{ template "ztnet.ztnet.image" . }}
+          imagePullPolicy: {{ .Values.ztnet.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.ztnet.diagnosticMode.enabled }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.diagnosticMode.command "context" $) | nindent 12 }}
+          {{- else if .Values.ztnet.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ztnet.diagnosticMode.enabled }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.diagnosticMode.args "context" $) | nindent 12 }}
+          {{- else if .Values.ztnet.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.args "context" $) | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.ztnet.extraEnvVars }}
+          env:
+            {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.extraEnvVars "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.ztnet.extraEnvVarsCM .Values.ztnet.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.ztnet.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.ztnet.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.ztnet.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.ztnet.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- end }}
+
+          {{- if .Values.ztnet.resources }}
+          resources: {{- toYaml .Values.ztnet.resources | nindent 12 }}
+          {{- else if ne .Values.ztnet.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.ztnet.resourcesPreset) | nindent 12 }}
+          {{- end }}
+
+          ports:
+            - name: httppublic
+              containerPort: {{ .Values.containerPorts.httppublic }}
+            {{- if .Values.extraContainerPorts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraContainerPorts "context" $) | nindent 12 }}
+            {{- end }}
+
+          {{- if not .Values.ztnet.diagnosticMode.enabled }}
+          {{- if .Values.ztnet.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ztnet.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ztnet.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ztnet.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ztnet.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ztnet.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ztnet.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ztnet.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ztnet.startupProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- end }}
+
+          {{- if .Values.ztnet.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: data
+              mountPath: {{ .Values.persistence.ztnet.mountPath }}
+              {{- if .Values.persistence.ztnet.subPath }}
+              subPath: {{ .Values.persistence.ztnet.subPath }}
+              {{- end }}
+          {{- if .Values.ztnet.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+
+
+        - name: zerotier
+          image: {{ template "ztnet.zerotier.image" . }}
+          imagePullPolicy: {{ .Values.zerotier.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.zerotier.diagnosticMode.enabled }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.diagnosticMode.command "context" $) | nindent 12 }}
+          {{- else if .Values.zerotier.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.zerotier.diagnosticMode.enabled }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.diagnosticMode.args "context" $) | nindent 12 }}
+          {{- else if .Values.zerotier.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.args "context" $) | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.zerotier.extraEnvVars }}
+          env:
+            {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.extraEnvVars "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.zerotier.extraEnvVarsCM .Values.zerotier.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.zerotier.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.zerotier.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.zerotier.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.zerotier.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- end }}
+
+          {{- if .Values.zerotier.resources }}
+          resources: {{- toYaml .Values.zerotier.resources | nindent 12 }}
+          {{- else if ne .Values.zerotier.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.zerotier.resourcesPreset) | nindent 12 }}
+          {{- end }}
+
+          ports:
+            - name: httpzerotier
+              containerPort: {{ .Values.containerPorts.httpzerotier }}
+
+          {{- if not .Values.zerotier.diagnosticMode.enabled }}
+          {{- if .Values.zerotier.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.zerotier.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.zerotier.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.zerotier.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.zerotier.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.zerotier.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.zerotier.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.zerotier.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.zerotier.startupProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- end }}
+
+          {{- if .Values.zerotier.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: data
+              mountPath: {{ .Values.persistence.zerotier.mountPath }}
+              {{- if .Values.persistence.zerotier.subPath }}
+              subPath: {{ .Values.persistence.zerotier.subPath }}
+              {{- end }}
+          {{- if .Values.zerotier.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.zerotier.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+
+        {{- if .Values.sidecars }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: data
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ default (include "common.names.fullname" .) .Values.persistence.existingClaim }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
