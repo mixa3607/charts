@@ -1,0 +1,19 @@
+apiVersion: v2
+name: huggingface-model-downloader
+description: Web UI for downloading Hugging Face models and datasets
+type: application
+annotations:
+  licenses: Apache-2.0
+home: https://github.com/mixa3607/charts/tree/master/charts/huggingface-model-downloader
+keywords:
+  - huggingface
+  - models
+  - downloader
+  - web-ui
+maintainers:
+  - name: mixa3607
+    url: https://github.com/mixa3607
+sources:
+  - https://github.com/bodaay/HuggingFaceModelDownloader
+version: 0.1.0
+appVersion: 3.2.0

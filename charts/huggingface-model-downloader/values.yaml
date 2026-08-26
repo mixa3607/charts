@@ -1,0 +1,85 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/bodaay/huggingfacemodeldownloader
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+command: []
+args:
+  - serve
+  - --addr
+  - 0.0.0.0
+  - --port
+  - "8080"
+
+extraEnvVars: []
+extraEnvVarsSecret: ""
+extraVolumes: []
+extraVolumeMounts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+  loadBalancerSourceRanges: []
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: huggingface-model-downloader.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 100Gi
+  annotations: {}
+
+auth:
+  enabled: false
+  existingSecret: ""
+  username: ""
+  password: ""
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
