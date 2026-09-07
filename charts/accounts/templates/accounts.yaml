@@ -1,0 +1,58 @@
+{{- range $name, $account := .Values.accounts }}
+{{- $namespace := $account.namespace | default $.Release.Namespace }}
+{{- $rbacName := printf "%s-%s-%s" $.Release.Namespace $.Release.Name $name }}
+{{- $tokenName := printf "%s-%s-token" $.Release.Name $name }}
+{{- $token := $account.token | default dict }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- mergeOverwrite (include "accounts.labels" $ | fromYaml) ($account.labels | default dict) | toYaml | nindent 4 }}
+  {{- with $account.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: false
+{{- if hasKey $account.clusterRole "rules" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $rbacName }}
+  labels:
+    {{- include "accounts.labels" $ | nindent 4 }}
+rules:
+  {{- toYaml $account.clusterRole.rules | nindent 2 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $rbacName }}
+  labels:
+    {{- include "accounts.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $account.clusterRole.existingName | default $rbacName | quote }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}
+    namespace: {{ $namespace }}
+{{- if $token.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $tokenName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "accounts.labels" $ | nindent 4 }}
+  annotations:
+    kubernetes.io/service-account.name: {{ $name | quote }}
+type: kubernetes.io/service-account-token
+{{- end }}
+{{- end }}

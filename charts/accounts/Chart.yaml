@@ -1,0 +1,5 @@
+apiVersion: v2
+name: accounts
+description: Service accounts with cluster RBAC and optional persistent API tokens.
+type: application
+version: 0.1.0

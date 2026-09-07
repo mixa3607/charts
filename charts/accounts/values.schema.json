@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "accounts": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 63,
+        "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clusterRole"
+        ],
+        "properties": {
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "annotations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "namespace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "clusterRole": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "existingName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rules": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "verbs"
+                  ],
+                  "properties": {
+                    "verbs": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "apiGroups": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "resources": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "resourceNames": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "nonResourceURLs": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "oneOf": [
+                    {
+                      "required": [
+                        "apiGroups",
+                        "resources"
+                      ],
+                      "not": {
+                        "required": [
+                          "nonResourceURLs"
+                        ]
+                      }
+                    },
+                    {
+                      "required": [
+                        "nonResourceURLs"
+                      ],
+                      "not": {
+                        "anyOf": [
+                          {
+                            "required": [
+                              "apiGroups"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "resources"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "resourceNames"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "existingName"
+                ],
+                "not": {
+                  "required": [
+                    "rules"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "rules"
+                ],
+                "not": {
+                  "required": [
+                    "existingName"
+                  ]
+                }
+              }
+            ]
+          },
+          "token": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
