@@ -407,6 +407,10 @@ service:
   ##
   ports:
     http: 8080
+  ## @param service.targetPorts.http Target port for the HTTP Service port. Defaults to containerPorts.http.
+  ##
+  targetPorts:
+    http: ""
   ## @param service.loadBalancerSourceRanges Restricts access for LoadBalancer (only with `service.type: LoadBalancer`)
   ## e.g:
   ## loadBalancerSourceRanges:
