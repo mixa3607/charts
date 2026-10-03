@@ -13,11 +13,11 @@ maintainers:
 sources:
   - https://github.com/moby/buildkit
   - https://github.com/andrcuns/charts
-version: 0.1.2
+version: 0.1.3
 appVersion: v0.23.2
 dependencies:
-  - name: common
-    repository: oci://registry-1.docker.io/bitnamicharts
+  - name: bitnami-common
+    repository: oci://ghcr.io/mixa3607/charts
     tags:
       - bitnami-common
     version: 2.x.x

@@ -12,11 +12,11 @@ maintainers:
     url: https://github.com/mixa3607
 sources:
   - https://gitea.arkprojects.space/ArkProjects/dvach-services/src/branch/master/src/ArkProjects.Dv.DumperService
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0
 dependencies:
-  - name: common
-    repository: oci://registry-1.docker.io/bitnamicharts
+  - name: bitnami-common
+    repository: oci://ghcr.io/mixa3607/charts
     tags:
       - bitnami-common
     version: 2.x.x

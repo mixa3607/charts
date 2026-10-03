@@ -6,9 +6,9 @@ A [Helm Library Chart](https://helm.sh/docs/topics/library_charts/#helm) for gro
 
 ```yaml
 dependencies:
-  - name: common
+  - name: bitnami-common
     version: 2.x.x
-    repository: oci://registry-1.docker.io/bitnamicharts
+    repository: oci://ghcr.io/mixa3607/charts
 ```
 
 ```console

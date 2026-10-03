@@ -12,11 +12,11 @@ maintainers:
     url: https://github.com/mixa3607
 sources:
   - https://github.com/mixa3607/fan-control
-version: 0.2.0
+version: 0.2.1
 appVersion: 0.2.2
 dependencies:
-  - name: common
-    repository: oci://registry-1.docker.io/bitnamicharts
+  - name: bitnami-common
+    repository: oci://ghcr.io/mixa3607/charts
     tags:
       - bitnami-common
     version: 2.x.x

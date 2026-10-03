@@ -13,11 +13,11 @@ maintainers:
 sources:
   - https://github.com/mixa3607/ml-gfx906
   - https://github.com/ggml-org/llama.cpp
-version: 0.1.7
+version: 0.1.8
 appVersion: 0.1.0
 dependencies:
-  - name: common
-    repository: oci://registry-1.docker.io/bitnamicharts
+  - name: bitnami-common
+    repository: oci://ghcr.io/mixa3607/charts
     tags:
       - bitnami-common
     version: 2.x.x

@@ -1,6 +1,6 @@
 dependencies:
-- name: common
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.31.3
-digest: sha256:f9c314553215490ea1b94c70082cb152d6ff5916ce185b4e00f5287f81545b4c
-generated: "2025-07-02T23:51:09.628247327+05:00"
+- name: bitnami-common
+  repository: oci://ghcr.io/mixa3607/charts
+  version: 2.31.10
+digest: sha256:6b64584329f4d90e9685cd9dbb8b79a88d88be393bd3aaac607065bb3b2750e7
+generated: "2026-10-03T19:34:48.204040217+05:00"
