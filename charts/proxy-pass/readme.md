@@ -8,6 +8,9 @@ HTTP proxy pass over kubernetes ingresss
 helm install my-release oci://ghcr.io/mixa3607/charts/proxy-pass
 ```
 
+Set `endpoint.ip` to the upstream IP address to create the Service's Endpoints.
+Without it, the chart creates a Service without a backend.
+
 ## Prerequisites
 
 - Kubernetes 1.30+

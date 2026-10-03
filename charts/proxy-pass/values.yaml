@@ -2,3 +2,20 @@ nameOverride: ""
 fullnameOverride: ""
 
 extraDeploy: []
+
+service:
+  type: ClusterIP
+  port: 80
+  annotations: {}
+
+# Set an IP address to create Endpoints for the Service.
+endpoint:
+  ip: ""
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []

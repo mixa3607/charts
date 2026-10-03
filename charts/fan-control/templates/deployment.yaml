@@ -25,7 +25,10 @@ spec:
 
   template:
     metadata:
-      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
         checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
         app.kubernetes.io/component: fan-control
