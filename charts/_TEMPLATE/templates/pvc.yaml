@@ -11,16 +11,12 @@ metadata:
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
     app.kubernetes.io/component: __CHART__
-  {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.persistence.annotations .Values.commonAnnotations) "context" .) }}
-  annotations:
-    {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
-    {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.persistence.annotations .Values.commonAnnotations) "context" .) }}
-    {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.persistence.preserve }}
-    helm.sh/resource-policy: keep
-    {{- end }}
+  {{- if or .Values.persistence.annotations .Values.commonAnnotations .Values.persistence.preserve }}
+  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.persistence.annotations .Values.commonAnnotations) "context" .) | fromYaml }}
+  {{- if .Values.persistence.preserve }}
+  {{- $_ := set $annotations "helm.sh/resource-policy" "keep" }}
+  {{- end }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 spec:
   accessModes:

@@ -17,7 +17,7 @@ spec:
   strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
   {{- end }}
 
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels) "context" .) }}
+  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels) "context" .) | fromYaml }}
 
   selector:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
@@ -35,6 +35,7 @@ spec:
       {{- include "__CHART__.imagePullSecrets" . | nindent 6 }}
 
       serviceAccountName: {{ template "__CHART__.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
 
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.affinity "context" $) | nindent 8 }}
@@ -53,7 +54,9 @@ spec:
       tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
       {{- end }}
 
+      {{- if .Values.priorityClassName }}
       priorityClassName: {{ .Values.priorityClassName | quote }}
+      {{- end }}
 
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
@@ -95,10 +98,11 @@ spec:
           args: {{- include "common.tplvalues.render" (dict "value" .Values.args "context" $) | nindent 12 }}
           {{- end }}
 
+          {{- if .Values.extraEnvVars }}
           env:
-            {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
-            {{- end }}
+          {{- end }}
+          {{- if or .Values.extraEnvVarsCM .Values.extraEnvVarsSecret }}
           envFrom:
             {{- if .Values.extraEnvVarsCM }}
             - configMapRef:
@@ -108,18 +112,17 @@ spec:
             - secretRef:
                 name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsSecret "context" $) }}
             {{- end }}
+          {{- end }}
 
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
-          {{- else if ne .Values.resourcesPreset "none" }}
+          {{- else if and .Values.resourcesPreset (ne .Values.resourcesPreset "none") }}
           resources: {{- include "common.resources.preset" (dict "type" .Values.resourcesPreset) | nindent 12 }}
           {{- end }}
 
           ports:
-            - name: httppublic
-              containerPort: {{ .Values.containerPorts.httppublic }}
-            - name: httpprivate
-              containerPort: {{ .Values.containerPorts.httpprivate }}
+            - name: http
+              containerPort: {{ .Values.containerPorts.http }}
             {{- if .Values.extraContainerPorts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraContainerPorts "context" $) | nindent 12 }}
             {{- end }}
@@ -146,41 +149,31 @@ spec:
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" $) | nindent 12 }}
           {{- end }}
 
+          {{- if or .Values.persistence.enabled .Values.extraVolumeMounts }}
           volumeMounts:
-            {{- range $k, $v := index .Values "app-configuration" }}
-            - name: appsettings
-              readOnly: true
-              mountPath: "/homes/app/{{ $k }}"
-              subPath: {{ $k }}
-            {{- end }}
-            - name: empty-dir
-              mountPath: /tmp
-              subPath: tmp-dir
+            {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
               {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
               {{- end }}
-          {{- if .Values.extraVolumeMounts }}
-          {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
           {{- end }}
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
 
+      {{- if or .Values.persistence.enabled .Values.extraVolumes }}
       volumes:
-        - name: empty-dir
-          emptyDir: { }
-        - name: data
         {{- if .Values.persistence.enabled }}
+        - name: data
           persistentVolumeClaim:
             claimName: {{ default (include "common.names.fullname" .) .Values.persistence.existingClaim }}
-        {{- else }}
-          emptyDir: {}
         {{- end }}
-        - name: appsettings
-          secret:
-            secretName: {{ template "common.names.fullname" . }}-app-configuration
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
+      {{- end }}
