@@ -1,4 +1,12 @@
 {{- range .Values.extraDeploy }}
 ---
+{{- if $.Values.extraDeployAsPlainText }}
+{{- if typeIs "string" . }}
+{{ . }}
+{{- else }}
+{{ toYaml . }}
+{{- end }}
+{{- else }}
 {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
 {{- end }}

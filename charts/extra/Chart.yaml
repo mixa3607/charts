@@ -11,7 +11,7 @@ maintainers:
   - name: mixa3607
     url: https://github.com/mixa3607
 sources: []
-version: 0.1.1
+version: 0.2.0
 appVersion: "0.0.0"
 dependencies:
   - name: bitnami-common
