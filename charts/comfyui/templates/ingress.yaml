@@ -19,6 +19,11 @@ spec:
     - host: {{ .Values.ingress.hostname }}
       http:
         paths:
+          {{- if and .Values.fileManagerSidecar.enabled .Values.ingress.fileManager.enabled }}
+          - path: {{ .Values.fileManagerSidecar.config.server.baseURL | quote }}
+            pathType: {{ .Values.ingress.fileManager.pathType }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "common.names.fullname" .) "servicePort" "file-manager" "context" $) | nindent 14 }}
+          {{- end }}
           {{- if .Values.ingress.extraPaths }}
           {{- toYaml .Values.ingress.extraPaths | nindent 10 }}
           {{- end }}

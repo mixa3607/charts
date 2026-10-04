@@ -10,11 +10,20 @@ Return the proper comfyui image name
 {{- include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) -}}
 {{- end -}}
 
+{{/* Return the proper File Browser image name */}}
+{{- define "comfyui.fileManagerImage" -}}
+{{- include "common.images.image" (dict "imageRoot" .Values.fileManagerSidecar.image "global" .Values.global "chart" .Chart) -}}
+{{- end -}}
+
 {{/*
 Return the proper Docker Image Registry Secret Names
 */}}
 {{- define "comfyui.imagePullSecrets" -}}
-{{- include "common.images.renderPullSecrets" (dict "images" (list .Values.image) "context" $) -}}
+{{- $images := list .Values.image -}}
+{{- if .Values.fileManagerSidecar.enabled -}}
+{{- $images = append $images .Values.fileManagerSidecar.image -}}
+{{- end -}}
+{{- include "common.images.renderPullSecrets" (dict "images" $images "context" $) -}}
 {{- end -}}
 
 {{/*

@@ -215,6 +215,54 @@ spec:
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
+        {{- if .Values.fileManagerSidecar.enabled }}
+        - name: file-manager
+          image: {{ template "comfyui.fileManagerImage" . }}
+          imagePullPolicy: {{ .Values.fileManagerSidecar.image.pullPolicy }}
+          ports:
+            - name: file-manager
+              containerPort: {{ .Values.fileManagerSidecar.containerPorts.http }}
+              protocol: TCP
+          command: ["sh", "-c"]
+          args:
+            - |
+              mkdir -p "{{ .Values.persistence.mountPath }}/filebrowser/data/tmp"
+              export FILEBROWSER_CONFIG="{{ .Values.persistence.mountPath }}/filebrowser/config.yaml"
+              cat > "$FILEBROWSER_CONFIG" <<'EOF'
+              auth:
+              {{- toYaml .Values.fileManagerSidecar.config.auth | nindent 16 }}
+              server:
+                baseURL: {{ .Values.fileManagerSidecar.config.server.baseURL | quote }}
+                {{- if .Values.fileManagerSidecar.config.server.externalUrl }}
+                externalUrl: {{ .Values.fileManagerSidecar.config.server.externalUrl | quote }}
+                {{- end }}
+                port: {{ .Values.fileManagerSidecar.containerPorts.http }}
+                cacheDir: {{ printf "%s/filebrowser/data/tmp" .Values.persistence.mountPath | quote }}
+                sources:
+                  - path: {{ .Values.persistence.mountPath | quote }}
+                    config:
+                      defaultEnabled: true
+              EOF
+              exec ./filebrowser
+          {{- if .Values.fileManagerSidecar.resources }}
+          resources: {{- toYaml .Values.fileManagerSidecar.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.fileManagerSidecar.securityContext }}
+          securityContext: {{- toYaml .Values.fileManagerSidecar.securityContext | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+              {{- if .Values.persistence.subPath }}
+              subPath: {{ .Values.persistence.subPath }}
+              {{- end }}
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            {{- if .Values.fileManagerSidecar.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.fileManagerSidecar.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        {{- end }}
 
       volumes:
         - name: empty-dir

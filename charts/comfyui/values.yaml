@@ -148,6 +148,54 @@ initContainers: []
 ## @param sidecars Attach additional containers to the pod (evaluated as a template)
 ##
 sidecars: []
+
+## File Browser sidecar
+##
+fileManagerSidecar:
+  ## @param fileManagerSidecar.enabled Enable the File Browser sidecar
+  ##
+  enabled: true
+  ## File Browser image
+  ## @param fileManagerSidecar.image.registry Image registry
+  ## @param fileManagerSidecar.image.repository Image repository
+  ## @skip fileManagerSidecar.image.tag Image tag
+  ## @param fileManagerSidecar.image.digest Image digest (overrides the tag)
+  ## @param fileManagerSidecar.image.pullPolicy Image pull policy
+  ## @param fileManagerSidecar.image.pullSecrets Image pull secrets
+  ##
+  image:
+    registry: docker.io
+    repository: gtstef/filebrowser
+    tag: 1.5.6-stable
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  ## @param fileManagerSidecar.containerPorts.http File Browser container port
+  ##
+  containerPorts:
+    http: 8090
+  ## @param fileManagerSidecar.resources File Browser container resource requests and limits
+  ##
+  resources: {}
+  ## @param fileManagerSidecar.securityContext File Browser container security context
+  ##
+  securityContext: {}
+  ## @param fileManagerSidecar.extraVolumeMounts Additional File Browser volume mounts
+  ##
+  extraVolumeMounts: []
+  ## File Browser application configuration
+  ## @param fileManagerSidecar.config.auth [object] File Browser auth settings
+  ## @param fileManagerSidecar.config.server.baseURL URL path used by File Browser and its ingress route
+  ## @param fileManagerSidecar.config.server.externalUrl Public URL of File Browser
+  ##
+  config:
+    auth:
+      methods:
+        noauth: true
+    server:
+      baseURL: /filebrowser
+      externalUrl: ""
+
 ## Autoscaling configuration
 ## ref: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 ##
@@ -394,6 +442,9 @@ service:
   ##
   ports:
     http: 8080
+    ## @param service.ports.fileManager File Browser Service port (used when fileManagerSidecar.enabled is true)
+    ##
+    fileManager: 8090
   ## @param service.loadBalancerSourceRanges Restricts access for LoadBalancer (only with `service.type: LoadBalancer`)
   ## e.g:
   ## loadBalancerSourceRanges:
@@ -464,6 +515,13 @@ ingress:
   ## with ALB ingress controllers.
   ##
   path: /
+  ## File Browser path on the primary hostname; the path comes from fileManagerSidecar.config.server.baseURL
+  ## @param ingress.fileManager.enabled Add the path when fileManagerSidecar.enabled is true
+  ## @param ingress.fileManager.pathType File Browser path type
+  ##
+  fileManager:
+    enabled: true
+    pathType: Prefix
   ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
   ## For a full list of possible ingress annotations, please see
   ## ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md
@@ -606,5 +664,3 @@ persistence:
   ##     app: my-app
   ##
   selector: {}
-
-#####################################
