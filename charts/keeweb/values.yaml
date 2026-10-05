@@ -40,7 +40,6 @@ securityContext:
 
 service:
   type: ClusterIP
-  httpsPort: 443
   httpPort: 80
   annotations: {}
 
@@ -86,12 +85,6 @@ volumes: []
 
 keewebConfig:
   value: "{}"
-
-keewebNginxVolume:
-  accessModes:
-    - ReadWriteOnce
-  size: 10Mi
-  storageClassName: ""
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts: []

@@ -12,10 +12,12 @@ spec:
       {{- include "keeweb.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/nginx: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "keeweb.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -35,10 +37,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              sed -i 's|(no-config)|configs/default.json|g' /keeweb/index.html
+              exec nginx
           ports:
-            - name: https
-              containerPort: {{ .Values.service.httpsPort }}
-              protocol: TCP
             - name: http
               containerPort: {{ .Values.service.httpPort }}
               protocol: TCP
@@ -53,18 +57,16 @@ spec:
               readOnly: true
               mountPath: "/keeweb/configs"
             - name: nginx
-              readOnly: false
-              mountPath: "/etc/nginx/external"
-          env:
-            - name: KEEWEB_CONFIG_URL
-              value: 'configs/default.json'
+              readOnly: true
+              mountPath: "/etc/nginx/conf.d/keeweb.conf"
+              subPath: keeweb.conf
       volumes:
         - name: configs
           secret:
             secretName: {{ $fullName }}-configs
         - name: nginx
-          persistentVolumeClaim:
-            claimName: {{ $fullName }}-nginx
+          configMap:
+            name: {{ $fullName }}-nginx
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

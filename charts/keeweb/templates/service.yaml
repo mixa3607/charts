@@ -15,9 +15,5 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    - port: {{ .Values.service.httpsPort }}
-      targetPort: https
-      protocol: TCP
-      name: https
   selector:
     {{- include "keeweb.selectorLabels" . | nindent 4 }}
