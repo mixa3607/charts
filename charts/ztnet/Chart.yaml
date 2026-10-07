@@ -12,8 +12,8 @@ maintainers:
     url: https://github.com/mixa3607/charts/charts/ztnet
 sources:
   - https://github.com/sinamics/ztnet
-version: 0.1.1
-appVersion: 0.1.0
+version: 0.1.3
+appVersion: 0.8.5
 dependencies:
   - name: bitnami-common
     repository: oci://ghcr.io/mixa3607/charts

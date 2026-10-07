@@ -76,7 +76,7 @@ ztnet:
   image:
     registry: docker.io
     repository: sinamics/ztnet
-    tag: "latest"
+    tag: "0.8.5"
     digest: ""
     ## Specify a imagePullPolicy
     ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
@@ -91,6 +91,13 @@ ztnet:
   ## @param args Override the default ztnet container arguments (useful with custom images)
   ##
   args: []
+
+  ## Copy Prisma engines to writable ephemeral storage for non-root startup.
+  ## Uses the same image, pull policy and security context as ztnet.
+  ## Disable for custom images that do not use the global Prisma CLI.
+  prismaEngines:
+    enabled: true
+    path: /usr/local/lib/node_modules/prisma/node_modules/@prisma/engines
 
   ## Diagnostic mode
   ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
@@ -126,9 +133,9 @@ ztnet:
   ## @param startupProbe.successThreshold Success threshold for startupProbe
   ##
   startupProbe:
-    enabled: false
+    enabled: true
     periodSeconds: 10
-    failureThreshold: 6
+    failureThreshold: 60
     httpGet:
       path: /
       port: httppublic
@@ -460,10 +467,10 @@ nodeSelector: {}
 ##
 podSecurityContext:
   enabled: true
-  fsGroupChangePolicy: Always
+  fsGroupChangePolicy: OnRootMismatch
   sysctls: []
   supplementalGroups: []
-  fsGroup: 1654
+  fsGroup: 1001
 ## Configure Container Security Context (only main container)
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## @param containerSecurityContext.enabled Enabled containers' Security Context
@@ -480,14 +487,14 @@ podSecurityContext:
 containerSecurityContext:
   enabled: true
   seLinuxOptions: {}
-  runAsUser: 0
-  runAsGroup: 0
-  runAsNonRoot: false
-  privileged: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  runAsNonRoot: true
+  privileged: false
   readOnlyRootFilesystem: false
-  allowPrivilegeEscalation: true
+  allowPrivilegeEscalation: false
   capabilities:
-    add: ["ALL"]
+    drop: ["ALL"]
   seccompProfile:
     type: "RuntimeDefault"
 
@@ -725,3 +732,5 @@ persistence:
 #####################################
 
 hostNetwork: false
+## Empty selects ClusterFirstWithHostNet for hostNetwork, otherwise ClusterFirst.
+dnsPolicy: ""

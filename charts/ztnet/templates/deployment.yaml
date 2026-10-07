@@ -35,6 +35,7 @@ spec:
       {{- include "ztnet.imagePullSecrets" . | nindent 6 }}
 
       hostNetwork: {{ .Values.hostNetwork }}
+      dnsPolicy: {{ default (ternary "ClusterFirstWithHostNet" "ClusterFirst" .Values.hostNetwork) .Values.dnsPolicy }}
 
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
@@ -71,9 +72,25 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- end }}
 
-      {{- if .Values.initContainers }}
+      {{- if or .Values.ztnet.prismaEngines.enabled .Values.initContainers }}
       initContainers:
+        {{- if .Values.ztnet.prismaEngines.enabled }}
+        - name: prisma-engines
+          image: {{ template "ztnet.ztnet.image" . }}
+          imagePullPolicy: {{ .Values.ztnet.image.pullPolicy }}
+          command: [sh, -ec]
+          args:
+            - cp -R {{ .Values.ztnet.prismaEngines.path | quote }}/. /engines/
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: prisma-engines
+              mountPath: /engines
+        {{- end }}
+        {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
+        {{- end }}
       {{- end }}
 
       containers:
@@ -95,10 +112,22 @@ spec:
           args: {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.args "context" $) | nindent 12 }}
           {{- end }}
 
-          {{- if .Values.ztnet.extraEnvVars }}
-          env:
-            {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.extraEnvVars "context" $) | nindent 12 }}
+          {{- $envNames := list }}
+          {{- range .Values.ztnet.extraEnvVars }}
+          {{- $envNames = append $envNames .name }}
           {{- end }}
+          env:
+            {{- if not (has "HOSTNAME" $envNames) }}
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            {{- end }}
+            {{- if not (has "NEXTAUTH_URL_INTERNAL" $envNames) }}
+            - name: NEXTAUTH_URL_INTERNAL
+              value: "http://127.0.0.1:{{ .Values.containerPorts.httppublic }}"
+            {{- end }}
+            {{- if .Values.ztnet.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.ztnet.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
           {{- if or .Values.ztnet.extraEnvVarsCM .Values.ztnet.extraEnvVarsSecret }}
           envFrom:
             {{- if .Values.ztnet.extraEnvVarsCM }}
@@ -147,6 +176,10 @@ spec:
           {{- end }}
 
           volumeMounts:
+            {{- if .Values.ztnet.prismaEngines.enabled }}
+            - name: prisma-engines
+              mountPath: {{ .Values.ztnet.prismaEngines.path | quote }}
+            {{- end }}
             - name: empty-dir
               mountPath: /tmp
               subPath: tmp-dir
@@ -244,6 +277,10 @@ spec:
         {{- end }}
 
       volumes:
+        {{- if .Values.ztnet.prismaEngines.enabled }}
+        - name: prisma-engines
+          emptyDir: {}
+        {{- end }}
         - name: empty-dir
           emptyDir: {}
         - name: data
